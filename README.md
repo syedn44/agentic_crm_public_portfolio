@@ -2,7 +2,7 @@
 
 Welcome. This repository serves as the public-facing portfolio for **Agentic CRM**, a scalable, hybrid-cloud enterprise application built to demonstrate some of my technical product management capabilities.
 
-▶️ **[Watch the Agentic CRM Prototype Video Walkthrough](./agentic_crm_prototype_walkthrough.mp4)**
+[![Agentic CRM Prototype Walkthrough](https://img.youtube.com/vi/Y5B6CYCRnfw/0.jpg)](https://youtu.be/Y5B6CYCRnfw)
 
 ## 🚀 Core Product Features
 
