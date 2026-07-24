@@ -1,17 +1,17 @@
 # Unit Economics & Scalability Report: Agentic CRM
 
 ## 1. Executive Summary
-Agentic CRM is engineered for maximum Total Cost of Ownership (TCO) optimization at every phase of its lifecycle. By strategically simulating enterprise conditions during the MVP phase and leveraging Google Cloud Platform's (GCP) serverless scaling, we have achieved an optimized sub-$60/month initial run-rate while maintaining a seamless path to enterprise-grade, elastic scaling.
+Agentic CRM is engineered for maximum Total Cost of Ownership (TCO) optimization at every phase of its lifecycle. By strategically simulating enterprise conditions during the prototype phase and leveraging Google Cloud Platform's (GCP) serverless scaling, we have achieved an optimized sub-$60/month initial run-rate while maintaining a seamless path to enterprise-grade, elastic scaling.
 
-## 2. Sub-$60 MVP Run-Rate & Validation Phase
+## 2. Sub-$60 Prototype Run-Rate & Validation Phase
 Building a highly scalable, enterprise-grade AI architecture natively in the cloud can incur significant "idle tax"—paying for 24/7 compute and database availability before achieving product market fit.
-To maximize development velocity and runway, the MVP deliberately simulated several enterprise infrastructure conditions:
+To maximize development velocity and runway, the prototype deliberately simulated several enterprise infrastructure conditions:
 - **Local Containerization:** Rather than deploying TwentyCRM to Google Cloud (which requires persistent, heavy Cloud SQL and Cloud Run infrastructure costing upwards of $61/month minimum), we isolated TwentyCRM within local Docker containers.
 - **Smee.io Webhook Tunneling:** Because a local Docker container cannot send webhooks over the public internet, we implemented Smee.io tunnels to proxy webhooks from the local TwentyCRM instance out to the internet and back into our AI Orchestrator. 
 - **Cost-Shielded Validation:** This approach allowed us to fully validate the core codebase, AI business logic, and database schemas in a production-ready state while keeping our infrastructure costs firmly under $60/month (currently shielded by GCP Free Tier credits) during this prototyping phase.
 
 ## 3. Hybrid-Cloud Scaling via Google Cloud Run
-Following successful MVP validation, the architecture transitioned to a hybrid-cloud model using a **Dual-Active State**. Google Workspace push notifications hit Cloudflare Zero Trust, routing to the local AI Orchestrator during the day, and failing over to serverless Google Cloud Run overnight as a webhook catcher.
+Following initial prototype validation, the architecture transitioned to a hybrid-cloud model using a **Dual-Active State**. Google Workspace push notifications hit Cloudflare Zero Trust, routing to the local AI Orchestrator during the day, and failing over to serverless Google Cloud Run overnight as a webhook catcher.
 - **Eliminating Cold Starts (Webhook SLA Defense):** The Node.js AI Orchestrator on Cloud Run is deployed with `min_instance_count = 1`. In enterprise architectures, providers like Stripe or Twilio will assume a timeout and fire duplicate webhooks if a `200 OK` is not returned within 200-500ms. By eliminating the 2-5 second latency of a serverless cold start, our overnight Orchestrator instantly absorbs and acknowledges incoming payloads within these strict industry SLAs (≤ 200ms).
 - **Enterprise Reliability & Circuit Breaking:** The system implements an Opossum circuit breaker to prevent cascading latency failures from overwhelming the event loop. Furthermore, the architecture utilizes Node.js failovers to manually and silently swap to the direct Vertex AI SDK if the primary Cloudflare Gateway connection to Gemini experiences an outage, ensuring enterprise-grade AI uptime without manual intervention.
 - **Idempotency & Deduplication Locks:** Distributed webhooks often suffer from duplicate firing (e.g., a CRM glitch sending the same event twice). The architecture implements a strict 10-minute Redis `SET...NX` idempotency lock. If duplicate payloads arrive, the Redis shield instantly detects and drops them, preventing duplicate AI token burns and ensuring database integrity.

@@ -1,6 +1,6 @@
-# Architecture Evolution: Delta Analysis (Initial Spec vs. MVP Reality)
+# Architecture Evolution: Delta Analysis (Initial Spec vs. Prototype Reality)
 
-This document serves as a Delta Analysis contrasting the initial Agentic CRM product requirements document (PRD) with the current minimum viable product (MVP) architecture, which has maintained physical infrastructure costs to a sub-$60/month hybrid-cloud run-rate (currently shielded by GCP free trial credits) while preserving the logical boundaries required for future enterprise scaling.
+This document serves as a Delta Analysis contrasting the initial Agentic CRM product requirements document (PRD) with the current prototype architecture, which has maintained physical infrastructure costs to a sub-$60/month hybrid-cloud run-rate (currently shielded by GCP free trial credits) while preserving the logical boundaries required for future enterprise scaling.
 
 ---
 
@@ -14,7 +14,7 @@ The most significant shift in the project occurred in the physical deployment to
 *   **AI Orchestrator:** Independent Node.js/TypeScript application deployed on Google Cloud Run (`min_instances=1`).
 *   **Databases:** Fully managed Google Cloud SQL (PostgreSQL) for relational data and Google Cloud Memorystore (Redis Standard Tier) for distributed caching.
 
-### MVP Reality
+### Prototype Reality
 *   **Execution:** A Hybrid-Cloud split to protect the startup runway while maintaining production-readiness.
 *   **CRM Host:** The heavy TwentyCRM monolith runs locally via `docker-compose` to eliminate large compute overhead.
 *   **AI Orchestrator:** Runs as a local Node.js process alongside the CRM.
@@ -34,7 +34,7 @@ The system relies heavily on asynchronous event-driven triggers. Handling inboun
 *   **Security:** Cryptographic authentication via HMAC-SHA256 signature verification and 5-minute timestamp drift checks.
 *   **Queueing:** Payloads published directly to Google Cloud Pub/Sub (`crm-events-ingress`), with delayed processing via Google Cloud Tasks.
 
-### MVP Reality 
+### Prototype Reality 
 *   **Execution:** Webhooks leverage a **Dual-Active State**. Google Workspace push notifications hit Cloudflare Zero Trust, which routes to the local AI Orchestrator during the day, and fails over to Google Cloud Run overnight as a webhook catcher. Internal CRM webhooks are tunneled to the local machine using **Smee.io**.
 *   **Queueing:** Google Cloud Pub/Sub is live for asynchronous decoupling, but the downstream Cloud Functions for processing Dead-Letter Queues (DLQ) are explicitly marked as "Deferred / Simulated."
 *   **Ingress:** The Cloud Run middleware acts as an overnight ingress catcher, while the local Express route acts as the primary daytime ingress.
@@ -52,7 +52,7 @@ A core mandate of Agentic CRM was protecting proprietary AI logic (Intent Scorin
 *   **Design:** Total physical isolation.
 *   **Storage:** A dedicated, private Cloud SQL instance owned *exclusively* by the AI Orchestrator for all AI-generated derivative data. TwentyCRM would only store an opaque UUID.
 
-### MVP Reality 
+### Prototype Reality 
 *   **Execution:** Physical isolation was perfectly maintained.
 *   **Storage:** The system provisions a dedicated, private Google Cloud SQL database instance alongside a dedicated Google Memorystore (Redis) instance on GCP, ensuring strict, enterprise-grade data isolation from the local TwentyCRM open-source database.
 
@@ -67,7 +67,7 @@ The legal IP firewall is proven, and the $60/month run-rate is offset by the $42
 *   **Design:** Hard enterprise compliance baselines.
 *   **Integration:** Native integration with Google Cloud Security Command Center (SCC) for vulnerability scanning, and the Google Cloud DLP API for active PII (Personally Identifiable Information) sanitization.
 
-### MVP Reality 
+### Prototype Reality 
 *   **Execution:** SCC and Cloud DLP are explicitly categorized as "Deferred / Ready for Connection."
 *   **Sanitization:** PII masking is currently handled via lightweight local Regex patterns.
 
@@ -92,7 +92,7 @@ The most critical evolution in the Agentic CRM was the introduction of enterpris
 *   **LLM Routing:** Hardcoded direct API calls to Google Gemini.
 *   **Security:** Standard HTTPS polling without strict tunnel isolation.
 
-### MVP Reality 
+### Prototype Reality 
 *   **Execution:** Proactive integration of fault-tolerance and Zero Trust perimeters.
 *   **Cloudflare AI Gateway & Degraded Modes:** Cloudflare AI Gateway provides ~50ms exact-match edge caching. The (Node.js) AI Orchestrator is hard-coded to intercept Gateway 500-errors and manually fallback to the direct Vertex AI SDK, ensuring enterprise-grade LLM uptime.
 *   **Circuit Breakers:** Implemented an Opossum circuit breaker in the web server to prevent cascading LLM latency timeouts from overflowing the Node.js event loop.
@@ -106,4 +106,4 @@ While infrastructure costs were slashed on idle compute resources, those savings
 
 ## Conclusion
 
-The initial specifications provided the **North Star architecture** while the MVP reality provides the **financial pragmatism**. The result is a functional, event-driven agentic platform that runs on a sub-$60/month hybrid-cloud architecture today, poised to scale to a fully managed enterprise cloud tomorrow.
+The initial specifications provided the **North Star architecture** while the prototype reality provides the **financial pragmatism**. The result is a functional, event-driven agentic platform that runs on a sub-$60/month hybrid-cloud architecture today, poised to scale to a fully managed enterprise cloud tomorrow.
