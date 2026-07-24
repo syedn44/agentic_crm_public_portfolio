@@ -77,7 +77,7 @@ Enterprise security tools like SCC and DLP APIs carry heavy premium costs. These
 ### 🧾 Proof of Unit Economics (GCP Billing Dashboard)
 The following is a screenshot from the active Google Cloud Billing dashboard, verifying the sub-$60/month Hybrid-Cloud footprint.
 
-![GCP Billing Dashboard - Hybrid Cloud Footprint](../portfolio/public/gcp_billing_by_service.jpg)
+![GCP Billing Dashboard - Hybrid Cloud Footprint](./gcp_billing_by_service.jpg)
 
 As demonstrated, the heavy monolithic compute costs are successfully bypassed via the local `docker-compose` environment, while the live managed instances for Google Cloud SQL and Google Cloud Memorystore log an active usage cost of ~$2.00 CAD per day. This infrastructure burn is currently shielded by the free trial credits, resulting in a net-zero impact to the startup's cash runway for the time being.
 
