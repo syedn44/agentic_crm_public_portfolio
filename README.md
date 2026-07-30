@@ -20,7 +20,7 @@ Agentic CRM is built as an orchestration layer on top of **TwentyCRM**, a powerf
 
 Due to the proprietary nature of the AI orchestration logic, the intent-scoring mechanisms, and the strict isolation boundaries protecting against open-source copyleft (AGPL-3.0) contamination, the codebase is gated for the time being to prevent IP leakage and reverse-engineering.
 
-If you are a Hiring Manager or Director of Product, **I invite you to request an interview** where I will gladly walk you through the software architecture, proprietary system logic, and live deployment.
+If you are a Hiring Manager or Director of Product, **I invite you to request an interview** where I will gladly walk you through the architecture diagrams, a sanitized codebase review, and a demonstration of the core deployment workflows.
 
 ---
 
